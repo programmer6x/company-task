@@ -5,12 +5,18 @@ namespace App\Http\Services\Product;
 use App\Http\Services\Media\MediaService;
 use App\Models\Media;
 use App\Models\Product;
+use App\Repositories\ProductRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProductService
 {
+    private $productRepository;
+    public function __construct(ProductRepository $repository){
+        $this->productRepository = $repository;
+    }
     public static function productInputs($request){
         $productInputs = $request->only([
             'name', 'description', 'tags', 'category_id', 'status', 'marketable', 'price', 'sold_number', 'frozen_number', 'marketable_number'
@@ -82,4 +88,38 @@ class ProductService
             }
         }
     }
+
+//    public static function checkImage($request)
+//    {
+//        if ($request->hasFile('images')) {
+//            $product = ProductService::creatingProduct($productInputs);
+//            $images = $request->file('images');
+//            foreach ($images as $image) {
+//                ProductService::dividingImages($image);
+//                $mediaInputs['product_id'] = $product->id;
+//                $storeMedia[] = $mediaInputs;
+//            }
+//            $product->medias()->createMany($storeMedia);
+//        }
+//    }
+
+    public static function createProduct($request): Product
+    {
+        DB::beginTransaction();
+        $productInputs = ProductService::productInputs($request);
+        $storeMedia = [];
+        $mediaInputs = MediaService::mediaInputs($request);
+        $product = ProductService::creatingProduct($productInputs);
+        if ($request->hasFile('images')) {
+            $images = $request->file('images');
+            foreach ($images as $image) {
+                ProductService::dividingImages($image);
+                $mediaInputs['product_id'] = $product->id;
+                $storeMedia[] = $mediaInputs;
+            }
+
+        }
+        return $product;
+    }
+
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Contract\ProductRepositoryInterface;
 use App\Http\Requests\ProductRequest;
 use App\Http\Services\Image\ImageService;
+use App\Http\Services\Media\MediaService;
 use App\Http\Services\Product\ProductService;
 use App\Models\Product;
 
@@ -28,9 +29,10 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ProductRequest $request,ImageService $imageService)
+    public function store(ProductRequest $request,ImageService $imageService,Product $product)
     {
-        return $this->repository->createProduct($request,$imageService);
+        $product = ProductService::createProduct($request);
+        return $this->repository->createProduct($request,$imageService,$product);
     }
 
     /**

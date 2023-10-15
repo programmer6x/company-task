@@ -34,20 +34,9 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function createProduct(ProductRequest $request, ImageService $imageService)
     {
-        DB::beginTransaction();
-        $productInputs = ProductService::productInputs($request);
-        $storeMedia = [];
-        $mediaInputs = MediaService::mediaInputs($request);
-        if ($request->hasFile('images')) {
-            $product = ProductService::creatingProduct($productInputs);
-            $images = $request->file('images');
-            foreach ($images as $image) {
-                ProductService::dividingImages($image);
-                $mediaInputs['product_id'] = $product->id;
-                $storeMedia[] = $mediaInputs;
-            }
+
             $product->medias()->createMany($storeMedia);
-        }
+
        return ProductService::successfulJson();
     }
 
@@ -68,7 +57,6 @@ class ProductRepository implements ProductRepositoryInterface
                 foreach ($medias as $media){
                     $media->delete();
                 }
-
             }
             $product->delete();
         }

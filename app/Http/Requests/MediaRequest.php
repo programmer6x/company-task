@@ -25,9 +25,7 @@ class MediaRequest extends FormRequest
     {
         if ($this->isMethod('post')){
             return [
-                'name' => 'required|max:120|min:2|regex:/^[ا-یa-zA-Z0-9\ِِِِِِِِِِِِِِِء-ي., ]+$/u',
-                'description' => 'max:300|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r&?؟ ]+$/u',
-                'file' => 'required|file|mimes:png,jpg,jpeg,gif,mp4',
+                'file.*' => 'required|file|mimes:png,jpg,jpeg,gif,mp4',
                 'type' => [new Enum(ImageType::class),'required'],
                 'product_id' => 'required|numeric|exists:products,id',
                 'status' => 'required|numeric|in:0,1',
@@ -37,7 +35,7 @@ class MediaRequest extends FormRequest
             return [
                 'name' => 'max:120|min:2|regex:/^[ا-یa-zA-Z0-9\ِِِِِِِِِِِِِِِء-ي., ]+$/u',
                 'description' => 'max:300|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r&?؟ ]+$/u',
-                'file' => 'file|mimes:png,jpg,jpeg,gif,mp4',
+                'file.*' => 'file|mimes:png,jpg,jpeg,gif,mp4',
                 'type' => [new Enum(ImageType::class)],
                 'product_id' => 'numeric|exists:products,id',
                 'status' => 'numeric|in:0,1',

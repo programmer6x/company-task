@@ -7,77 +7,72 @@ use App\Http\Requests\ProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Http\Services\Image\ImageService;
 use App\Models\Category;
+use App\Models\Media;
 use App\Models\Product;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Http\Services\Product\ProductService;
+use App\Http\Services\Media\MediaService;
 
 class ProductRepository implements ProductRepositoryInterface
 {
 
     public function getAllProducts()
     {
-        $products = Product::where('status',0)->with('category','user')->simplePaginate(10);
+        $products = Product::where('status', 0)->with('category', 'user')->simplePaginate(10);
         return ProductResource::collection($products);
     }
 
     public function getProductById(int $id)
     {
-        $product = Product::where('id',$id)->first();
-        return $product->load('category','user');
+        $product = Product::where('id', $id)->first();
+        return $product->load('category', 'user');
     }
 
-    public function createProduct(ProductRequest $request,ImageService $imageService)
+    public function createProduct(ProductRequest $request, ImageService $imageService)
     {
-        $inputs = $request->all();
-        if ($request->hasFile('image')){
-            $imageService->setExclusiveDirectory('images'.DIRECTORY_SEPARATOR.'product');
-            $result = $imageService->save($request->file('image'));
-            if ($result === false){
-                return response()->json([
-                    'data' => [
-                        'uploading image failed',
-                        'status' => '400'
-                    ]
-                ],400);
+        DB::beginTransaction();
+        $productInputs = ProductService::productInputs($request);
+        $storeMedia = [];
+        $mediaInputs = MediaService::mediaInputs($request);
+        if ($request->hasFile('images')) {
+            $product = ProductService::creatingProduct($productInputs);
+            $images = $request->file('images');
+            foreach ($images as $image) {
+                ProductService::dividingImages($image);
+                $mediaInputs['product_id'] = $product->id;
+                $storeMedia[] = $mediaInputs;
             }
-            $inputs['image'] = $result;
+            $product->medias()->createMany($storeMedia);
         }
-        $inputs['user_id'] = Auth::id();
-        $category = Product::create($inputs);
-        $category->load('category','user');
-        return response()->json($category,200);
+       return ProductService::successfulJson();
     }
 
-    public function updateProduct(int $id, ProductRequest $request,ImageService $imageService)
+    public function updateProduct(int $id, Request $request,$productInputs)
     {
-        $inputs = $request->all();
-        $product = Product::find($id);
-        if ($request->hasFile('image')){
-            if (!empty($product->image)){
-                $imageService->deleteImage($product->image);
+        DB::beginTransaction();
+        $product = Product::find($id)->update($productInputs);
+        ProductService::successfulJson();
+    }
+
+    public function deleteProduct($deleted_ids)
+    {
+        $deleted_ids = explode(",",$deleted_ids);
+        $products = Product::whereIn('id',$deleted_ids)->get();
+        foreach ($products as $product){
+            if ($product->medias->count() != 0){
+                $medias = $product->medias;
+                foreach ($medias as $media){
+                    $media->delete();
+                }
+
             }
-            $imageService->setExclusiveDirectory('images'.DIRECTORY_SEPARATOR.'product');
-            $result = $imageService->save($request->file('image'));
-            if ($result === false){
-                return response()->json([
-                    'data' => [
-                        'uploading image failed',
-                        'status' => '400'
-                    ]
-                ],400);
-            }
-            $inputs['image'] = $result;
+            $product->delete();
         }
-        $inputs['user_id'] = Auth::id();
-        $product->update($inputs);
-        return response()->json($product,200);
-    }
-
-    public function deleteProduct(Product $product)
-    {
-        $product->delete();
-        return response()->json(null,Response::HTTP_NO_CONTENT);
-
+//        $products = Product::whereIn('id',$deleted_ids)->delete();
     }
 
 }

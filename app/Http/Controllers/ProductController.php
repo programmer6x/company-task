@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Contract\ProductRepositoryInterface;
 use App\Http\Requests\ProductRequest;
 use App\Http\Services\Image\ImageService;
+use App\Http\Services\Product\ProductService;
 use App\Models\Product;
 
 class ProductController extends Controller
@@ -46,16 +47,19 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(ProductRequest $request, string $id,ImageService $imageService)
+    public function update(ProductRequest $request, string $id)
     {
-        return $this->repository->updateProduct($id,$request,$imageService);
+        ProductService::creatingMediaAndProduct($request);
+        $productInputs = ProductService::productInputs($request);
+        ProductService::deleteImage($request);
+        return $this->repository->updateProduct($id,$request,$productInputs);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product)
+    public function destroy($deleted_ids)
     {
-        return $this->repository->deleteProduct($product);
+        return $this->repository->deleteProduct($deleted_ids);
     }
 }

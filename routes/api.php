@@ -33,16 +33,20 @@ Route::middleware('auth:api')->group(function (){
 });
 
 Route::middleware('auth:api')->group(function (){
-    Route::apiResource('/products',ProductController::class);
+    Route::get('/products',[ProductController::class,'index']);
+    Route::post('/products',[ProductController::class,'store']);
+    Route::get('/products/{id}',[ProductController::class,'show']);
+    Route::put('/products/{id}',[ProductController::class,'update']);
+    Route::delete('/products/{deleted_ids}',[ProductController::class,'destroy']);
 });
 
-Route::middleware('auth:api')->group(function (){
-    Route::get('/medias',[MediaController::class,'index']);
-    Route::post('/medias',[MediaController::class,'store']);
-    Route::get('/medias/{id}',[MediaController::class,'show']);
-    Route::put('/medias/{id}',[MediaController::class,'update']);
-    Route::delete('/medias/{media_ids}',[MediaController::class,'destroy']);
-});
+//Route::middleware('auth:api')->group(function (){
+//    Route::get('/medias',[MediaController::class,'index']);
+//    Route::post('/medias',[MediaController::class,'store']);
+//    Route::get('/medias/{id}',[MediaController::class,'show']);
+//    Route::put('/medias/{id}',[MediaController::class,'update']);
+//    Route::delete('/medias/{media_ids}',[MediaController::class,'destroy']);
+//});
 
 Route::middleware('auth:api')->group(function (){
     Route::get('/cart-items',[CartItemController::class,'index']);

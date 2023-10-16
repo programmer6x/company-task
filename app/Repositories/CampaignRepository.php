@@ -12,7 +12,7 @@ class CampaignRepository implements CampaignRepositoryInterface
 {
     public function returnAllCampaign()
     {
-        $campaigns = Campaign::with('user')->get();
+        $campaigns = Campaign::with('user')->simplePaginate();
         return CampaignResource::collection($campaigns);
     }
 

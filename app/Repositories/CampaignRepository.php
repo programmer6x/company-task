@@ -3,16 +3,17 @@
 namespace App\Repositories;
 
 use App\Contract\CampaignRepositoryInterface;
+use App\Http\Resources\CampaignResource;
 use App\Models\Campaign;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class CampaignRepository implements CampaignRepositoryInterface
 {
-    public function returnAllCampaign(): Collection
+    public function returnAllCampaign()
     {
         $campaigns = Campaign::with('user')->get();
-        return $campaigns;
+        return CampaignResource::collection($campaigns);
     }
 
     public function createCampaign($campaignInputs): Campaign

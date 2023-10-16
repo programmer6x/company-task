@@ -25,8 +25,7 @@ class CampaignController extends Controller
     public function store(CampaignRequest $request,Campaign $campaign)
     {
         $campaign = $this->campaignService->createCampaign($request);
-        $ids = $this->campaignUserService->storeIds($request, $campaign);
-
+        $this->campaignUserService->storeIds($request, $campaign);
         return $campaign->load('campaignUsers');
 
     }

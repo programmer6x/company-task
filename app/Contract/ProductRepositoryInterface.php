@@ -13,6 +13,6 @@ interface ProductRepositoryInterface
     public function getAllProducts();
     public function getProductById(int $id);
     public function deleteProduct($deleted_ids);
-    public function createProduct(ProductRequest $request,ImageService $imageService);
+    public function createProduct(ProductRequest $request,$product);
     public function updateProduct(int $id, ProductRequest $request,$productInputs);
 }

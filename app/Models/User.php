@@ -81,4 +81,8 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Product::class);
     }
 
+    public function campaings()
+    {
+        return $this->hasMany(Campaign::class,'user_id');
+    }
 }

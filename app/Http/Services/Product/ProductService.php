@@ -2,6 +2,7 @@
 
 namespace App\Http\Services\Product;
 
+use App\Contract\MediaRepositoryInterface;
 use App\Http\Services\Media\MediaService;
 use App\Models\Media;
 use App\Models\Product;
@@ -13,10 +14,12 @@ use Illuminate\Support\Facades\DB;
 
 class ProductService
 {
-    private $productRepository;
-    public function __construct(ProductRepository $repository){
-        $this->productRepository = $repository;
+    private MediaRepositoryInterface $repository;
+
+    public function __construct(){
+        $this->repository = app()->make(MediaRepositoryInterface::class);
     }
+
     public static function productInputs($request){
         $productInputs = $request->only([
             'name', 'description', 'tags', 'category_id', 'status', 'marketable', 'price', 'sold_number', 'frozen_number', 'marketable_number'
@@ -103,7 +106,7 @@ class ProductService
 //        }
 //    }
 
-    public static function createProduct($request): Product
+    public function createProduct($request): Product
     {
         DB::beginTransaction();
         $productInputs = ProductService::productInputs($request);
@@ -116,6 +119,7 @@ class ProductService
                 ProductService::dividingImages($image);
                 $mediaInputs['product_id'] = $product->id;
                 $storeMedia[] = $mediaInputs;
+                $this->repository->createMany($storeMedia);
             }
 
         }

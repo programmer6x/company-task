@@ -32,11 +32,8 @@ class ProductRepository implements ProductRepositoryInterface
         return $product->load('category', 'user');
     }
 
-    public function createProduct(ProductRequest $request, ImageService $imageService)
+    public function createProduct(ProductRequest $request,$product)
     {
-
-            $product->medias()->createMany($storeMedia);
-
        return ProductService::successfulJson();
     }
 

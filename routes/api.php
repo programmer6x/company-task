@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\CampaignUserController;
 use App\Http\Controllers\CartItemController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\MediaController;
+use App\Models\Campaign;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,4 +58,13 @@ Route::middleware('auth:api')->group(function (){
     Route::put('/cart-items/{id}',[CartItemController::class,'update']);
     Route::delete('/cart-items/{cart_ids}',[CartItemController::class,'destroy']);
 });
+
+//Route::get('/factory',function (){
+//    Campaign::factory()->count(20)->create();
+//});
+
+Route::middleware('auth:api')->group(function (){
+    Route::apiResource('/campaigns',CampaignController::class);
+});
+
 

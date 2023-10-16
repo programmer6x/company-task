@@ -14,7 +14,7 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function __construct(private ProductRepositoryInterface $repository){
+    public function __construct(readonly private ProductRepositoryInterface $repository, readonly private ProductService $productService){
 
     }
 
@@ -29,10 +29,10 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ProductRequest $request,ImageService $imageService,Product $product)
+    public function store(ProductRequest $request,Product $product)
     {
-        $product = ProductService::createProduct($request);
-        return $this->repository->createProduct($request,$imageService,$product);
+        $product = $this->productService->createProduct($request);
+        return $this->repository->createProduct($request,$product);
     }
 
     /**
